@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>WebGL No. 2 - 光与影</title>
+    <title>WebGL No. 3 - 材质与纹理</title>
     <script type="text/javascript" src="../src/three.min.js"></script>
 </head>
 <body onload="init()">
@@ -29,10 +29,16 @@
         camera.lookAt(new THREE.Vector3(0, 0, 0));
         scene.add(camera);
 
+        // 图像应用于长方体
+        var texture = THREE.ImageUtils.loadTexture('images/2017022702.jpg', {}, function() {
+            renderer.render(scene, camera);
+        });
+
         // 长方形车身
         var meshCube1 = new THREE.Mesh(new THREE.CubeGeometry(1, 0.8, 2),
             new THREE.MeshLambertMaterial({
-                color: 0x999999
+                color: 0x999999,
+                map: texture
             })
         );
         meshCube1.castShadow = true;
@@ -41,6 +47,7 @@
         var meshCube2 = new THREE.Mesh(new THREE.CubeGeometry(1, 0.4, 0.8),
             new THREE.MeshLambertMaterial({
                 color: 0x999999
+
             })
         );
         meshCube2.position.set(0, -0.2, 1.4);
@@ -84,15 +91,17 @@
         meshGeo4.position.set(0.5, -0.4, -0.6);
         scene.add(meshGeo4);
 
-        // 点光源
-        var light = new THREE.PointLight(0xffffff, 2, 100);
-        light.position.set(-3, 1.5, 3);
+        // 聚光灯
+        var light = new THREE.SpotLight(0xffffff, 2, 100);
+        light.position.set(-3, 5, 4);
         light.castShadow = true;
         light.shadowCameraFov = 90;
         light.shadowCameraVisible = true;
 
         light.shadowDarkness = 0.1;
         scene.add(light);
+
+
 
         // render
         renderer.render(scene, camera);
