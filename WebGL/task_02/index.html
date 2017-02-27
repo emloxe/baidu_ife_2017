@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>WebGL No. 2 - 光与影</title>
+    <script type="text/javascript" src="../src/three.min.js"></script>
+</head>
+<body onload="init()">
+<canvas id="mainCanvas" width="800px" height="400px" style="position: absolute;left: 50%; top: 50%; margin-top: -250px; margin-left: -400px;" ></canvas>
+
+<script type="text/javascript">
+    function init() {
+        // renderer
+        var renderer = new THREE.WebGLRenderer({
+            canvas: document.getElementById('mainCanvas')
+        });
+        renderer.setClearColor(0x666666); // black
+        renderer.shadowMapEnabled = true;
+        renderer.shadowMapSoft = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+
+        // scene
+        var scene = new THREE.Scene();
+
+        // camera
+        var camera = new THREE.OrthographicCamera(-2, 2, 1, -1, -2, 10);
+        camera.position.set(-2, 0.8, 6);
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
+        scene.add(camera);
+
+        // 长方形车身
+        var meshCube1 = new THREE.Mesh(new THREE.CubeGeometry(1, 0.8, 2),
+            new THREE.MeshLambertMaterial({
+                color: 0x999999
+            })
+        );
+        meshCube1.castShadow = true;
+        scene.add(meshCube1);
+
+        var meshCube2 = new THREE.Mesh(new THREE.CubeGeometry(1, 0.4, 0.8),
+            new THREE.MeshLambertMaterial({
+                color: 0x999999
+            })
+        );
+        meshCube2.position.set(0, -0.2, 1.4);
+        meshCube2.castShadow = true;
+        scene.add(meshCube2);
+
+        // 地板平面
+        var meshCube3 = new THREE.Mesh(new THREE.CubeGeometry(5, 0.01, 8),
+            new THREE.MeshLambertMaterial({
+                color: 0x95A771
+            })
+        );
+        meshCube3.position.set(0, -0.6, 0);
+        meshCube3.receiveShadow = true;
+        scene.add(meshCube3);
+
+        // 圆环
+        var geo = new THREE.TorusGeometry(0.1, 0.05, 24, 26,Math.PI*2);
+        var geoColor = new THREE.MeshLambertMaterial({
+            color: 0x999999
+        })
+
+        var meshGeo1 = new THREE.Mesh(geo, geoColor);
+        meshGeo1.rotation.set(0, Math.PI*0.5, 0)
+        meshGeo1.position.set(-0.5, -0.4, 1.2);
+        scene.add(meshGeo1);
+
+        var meshGeo2 = new THREE.Mesh(geo, geoColor);
+        meshGeo2.rotation.set(0, Math.PI*0.5, 0)
+        meshGeo2.position.set(-0.5, -0.4, -0.6);
+        scene.add(meshGeo2);
+         
+        var meshGeo3 = new THREE.Mesh(geo, geoColor);
+        meshGeo3.rotation.set(0, Math.PI*0.5, 0)
+        meshGeo3.position.set(0.5, -0.4, 1.2);
+        scene.add(meshGeo3);
+
+        var meshGeo4 = new THREE.Mesh(geo, geoColor);
+        meshGeo4.rotation.set(0, Math.PI*0.5, 0)
+        meshGeo4.position.set(0.5, -0.4, -0.6);
+        scene.add(meshGeo4);
+
+        // 点光源
+        var light = new THREE.PointLight(0xffffff, 2, 100);
+        light.position.set(-3, 1.5, 3);
+        light.castShadow = true;
+        light.shadowCameraFov = 90;
+        light.shadowCameraVisible = true;
+
+        light.shadowDarkness = 0.1;
+        scene.add(light);
+
+        // render
+        renderer.render(scene, camera);
+    }
+</script>
+</body>
+</html>
+
+
