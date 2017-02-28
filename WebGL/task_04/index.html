@@ -2,11 +2,16 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>WebGL No. 3 - 材质与纹理</title>
+    <title>WebGL No. 4 - 照相机和交互控制</title>
     <script type="text/javascript" src="../src/three.min.js"></script>
+    <script type="text/javascript" src="TrackballControls.js"></script>
+    <script type="text/javascript" src="stats.min.js"></script>
 </head>
 <body onload="init()">
-<canvas id="mainCanvas" width="800px" height="400px" style="position: absolute;left: 50%; top: 50%; margin-top: -250px; margin-left: -400px;" ></canvas>
+<div id="container" style="position: absolute;left: 50%; top: 50%; margin-top: -250px; margin-left: -400px;">
+    <canvas id="mainCanvas" width="800px" height="400px"  ></canvas>
+</div>
+
 
 <script type="text/javascript">
     function init() {
@@ -25,27 +30,26 @@
 
         // camera
         var camera = new THREE.OrthographicCamera(-2, 2, 1, -1, -2, 10);
-        camera.position.set(-2, 0.8, 6);
+        camera.position.set(0, 0, 6);
         camera.lookAt(new THREE.Vector3(0, 0, 0));
         scene.add(camera);
 
-        // 材质的纹理贴图
-        var texture2 = THREE.ImageUtils.loadTexture('images/2017022702.jpg', {}, function() {
-            renderer.render(scene, camera);
-        });
-
-        var texture3 = THREE.ImageUtils.loadTexture('images/2017022703.jpg', {}, function() {
-            renderer.render(scene, camera);
-        });
-        texture3.wrapS = texture3.wrapT = THREE.RepeatWrapping;
-        texture3.repeat.set(4, 4);
-
+        // TrackballControls
+        controls = new THREE.TrackballControls( camera );
+        controls.rotateSpeed = 2.0;
+        controls.zoomSpeed = 1.2;
+        controls.panSpeed = 0.8;
+        controls.noZoom = false;
+        controls.noPan = false;
+        controls.staticMoving = true;
+        controls.dynamicDampingFactor = 0.3;
+        controls.keys = [ 65, 83, 68 ];
+        controls.addEventListener( 'change', render );
 
         // 长方形车身
-        var meshCube1 = new THREE.Mesh(new THREE.CubeGeometry(1, 0.8, 2),
+        var meshCube1 = new THREE.Mesh(new THREE.CubeGeometry(1, 0.8, 1.4),
             new THREE.MeshLambertMaterial({
-                color: 0x999999,
-                map: texture2
+                color: 0x999999
             })
         );
         meshCube1.castShadow = true;
@@ -54,18 +58,16 @@
         var meshCube2 = new THREE.Mesh(new THREE.CubeGeometry(1, 0.4, 0.8),
             new THREE.MeshLambertMaterial({
                 color: 0x999999
-
             })
         );
-        meshCube2.position.set(0, -0.2, 1.4);
+        meshCube2.position.set(0, -0.2, 1.1);
         meshCube2.castShadow = true;
         scene.add(meshCube2);
 
         // 地板平面
         var meshCube3 = new THREE.Mesh(new THREE.PlaneGeometry(5, 8),
             new THREE.MeshLambertMaterial({
-                color: 0xffffff,
-                map: texture3
+                color: 0x95A771
             })
         );
         meshCube3.position.set(0, -0.55, 0);
@@ -86,7 +88,7 @@
 
         var meshGeo2 = new THREE.Mesh(geo, geoColor);
         meshGeo2.rotation.set(0, Math.PI*0.5, 0)
-        meshGeo2.position.set(-0.5, -0.4, -0.6);
+        meshGeo2.position.set(-0.5, -0.4, -0.4);
         scene.add(meshGeo2);
          
         var meshGeo3 = new THREE.Mesh(geo, geoColor);
@@ -96,12 +98,12 @@
 
         var meshGeo4 = new THREE.Mesh(geo, geoColor);
         meshGeo4.rotation.set(0, Math.PI*0.5, 0)
-        meshGeo4.position.set(0.5, -0.4, -0.6);
+        meshGeo4.position.set(0.5, -0.4, -0.4);
         scene.add(meshGeo4);
 
-        // 聚光灯
-        var light = new THREE.SpotLight(0xffffff, 2, 100);
-        light.position.set(-4, 3, 4);
+        // 点光源
+        var light = new THREE.PointLight(0xffffff, 2, 100);
+        light.position.set(-3, 1.5, 3);
         light.castShadow = true;
         light.shadowCameraFov = 90;
         light.shadowCameraVisible = true;
@@ -109,10 +111,30 @@
         light.shadowDarkness = 0.1;
         scene.add(light);
 
+        window.addEventListener( 'resize', onWindowResize, false );
 
 
-        // render
-        renderer.render(scene, camera);
+        var container = document.getElementById("container"); 
+        stats = new Stats();
+        container.appendChild( stats.dom );
+
+        render();
+        animate();
+
+
+        function onWindowResize() {
+            controls.handleResize();
+            render();
+        }
+
+        function animate() {
+            requestAnimationFrame( animate );
+            controls.update();
+        }
+        function render() {
+            renderer.render( scene, camera );
+            stats.update();
+        }
     }
 </script>
 </body>
